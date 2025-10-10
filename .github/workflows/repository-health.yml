@@ -1,0 +1,78 @@
+name: Repository Health Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Repository structure validation
+      run: |
+        echo "=== Repository Health Check ==="
+        echo "Repository structure:"
+        find . -maxdepth 2 -type d ! -path './.git*' | sort
+        
+        echo -e "\n=== Project Statistics ==="
+        echo "Total projects found:"
+        find ./PROJECTS -mindepth 1 -maxdepth 1 -type d | wc -l
+        
+        echo -e "\nProgramming languages detected:"
+        echo "Go files: $(find . -name '*.go' | wc -l)"
+        echo "Swift files: $(find . -name '*.swift' | wc -l)"
+        echo "Python files: $(find . -name '*.py' | wc -l)"
+        echo "C/C++ files: $(find . -name '*.c' -o -name '*.cpp' | wc -l)"
+        echo "JavaScript files: $(find . -name '*.js' | wc -l)"
+        echo "HTML files: $(find . -name '*.html' | wc -l)"
+        
+        echo -e "\n=== Documentation Check ==="
+        echo "README files: $(find . -name 'README*' | wc -l)"
+        echo "Documentation files: $(find . -name '*.md' -o -name '*.txt' -o -name '*.docx' | wc -l)"
+        
+        echo -e "\n=== Build Configuration Check ==="
+        echo "Package.swift files: $(find . -name 'Package.swift' | wc -l)"
+        echo "Makefile files: $(find . -name 'Makefile' | wc -l)"
+        echo "requirements.txt files: $(find . -name 'requirements.txt' | wc -l)"
+        echo "Xcode projects: $(find . -name '*.xcodeproj' | wc -l)"
+        
+        echo -e "\n=== Workflow Configuration ==="
+        echo "GitHub Actions workflows:"
+        ls -la .github/workflows/ | grep -E '\.ya?ml$' | wc -l
+        
+        echo -e "\n✅ Repository health check completed successfully"
+    
+    - name: Check for large files
+      run: |
+        echo "=== Large Files Check ==="
+        echo "Files larger than 10MB:"
+        find . -type f -size +10M -not -path './.git/*' -exec ls -lh {} + || echo "No large files found"
+        
+        echo -e "\nFiles larger than 50MB (should be avoided):"
+        find . -type f -size +50M -not -path './.git/*' -exec ls -lh {} + || echo "No very large files found"
+    
+    - name: Security check
+      run: |
+        echo "=== Basic Security Check ==="
+        echo "Checking for potential secrets in code..."
+        
+        # Check for common secret patterns (basic check)
+        if grep -r -i -E "(password|secret|key|token).*=.*[\"'][^\"']{8,}" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.yml" --exclude="*.yaml" --exclude="*.md" | head -5; then
+          echo "⚠️  Potential hardcoded secrets found (review needed)"
+        else
+          echo "✅ No obvious hardcoded secrets detected"
+        fi
+        
+        echo -e "\n=== File Permissions Check ==="
+        echo "Checking for executable files that might need review:"
+        find . -type f -perm -111 -not -path './.git/*' | head -10 || echo "No executable files found"
