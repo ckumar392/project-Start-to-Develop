@@ -1,0 +1,54 @@
+# Configuration for the GitHub Actions labeler
+# https://github.com/actions/labeler
+
+# Label PRs based on file paths
+"go":
+  - "Go/**"
+  - "**/*.go"
+
+"swift":
+  - "PROJECTS/SWIFT PROJECTS/**"
+  - "**/*.swift"
+
+"c/cpp":
+  - "**/*.c"
+  - "**/*.cpp" 
+  - "**/*.h"
+  - "**/*.hpp"
+
+"python":
+  - "**/*.py"
+
+"web":
+  - "PROJECTS/WEB/**"
+  - "**/*.html"
+  - "**/*.css"
+  - "**/*.js"
+
+"kubernetes":
+  - "Kubernetes/**"
+  - "**/*.yaml"
+  - "**/*.yml"
+
+"linux":
+  - "Linux/**"
+  - "**/*.bash"
+  - "**/*.sh"
+
+"documentation":
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.docx"
+  - "**/*.pdf"
+
+"projects":
+  - "PROJECTS/**"
+
+"study-materials":
+  - "Study Materials/**"
+
+"cloud":
+  - "cloud/**"
+
+"infoblox":
+  - "Infoblox/**"
